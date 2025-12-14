@@ -16,11 +16,11 @@ class AdminUserSeeder extends Seeder
     public function run()
     {
         User::create([
-            'name'=> 'Admin',
-            'email' => 'superadmin@gmail.com',
+            'name'              => 'Admin',
+            'email'             => 'superadmin@gmail.com',
             'email_verified_at' => now(),
-            'password'=> bcrypt('smart'),
-            'is_admin' => true
+            'password'          => bcrypt('1234'),
+            'is_admin'          => true
         ]);
     }
 }
