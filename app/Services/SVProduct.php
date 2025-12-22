@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 
-use App\Models\Product;
+use App\Models\Api\Product;
 use Illuminate\Support\Str;
 use App\Services\BaseService;
 use App\Http\Tools\ParamTools;

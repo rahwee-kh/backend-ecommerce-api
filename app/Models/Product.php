@@ -29,4 +29,9 @@ class Product extends Model
         return SlugOptions::create('title')
         ->saveSlugsTo('slug');
     }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }
