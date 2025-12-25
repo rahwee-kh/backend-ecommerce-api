@@ -153,6 +153,7 @@ class CheckoutController extends Controller
                 ->where(['session_id' => $session_id])
                 ->whereIn('status', [Constants::PAYMENT_PENDING_STATUS, Constants::PAYMENT_PAID_STATUS])
                 ->first();
+
             if (!$payment) {
                 throw new NotFoundHttpException();
             }
@@ -162,6 +163,7 @@ class CheckoutController extends Controller
             $customer = \Stripe\Customer::retrieve($session->customer);
 
             return view('checkout.success', compact('customer'));
+
         } catch (NotFoundHttpException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -174,80 +176,82 @@ class CheckoutController extends Controller
         return view('checkout.failure', ['message' => ""]);
     }
 
-    // public function checkoutOrder(Order $order, Request $request)
-    // {
-    //     \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
+    public function checkoutOrder(Order $order, Request $request)
+    {
+        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
 
-    //     $lineItems = [];
-    //     foreach ($order->items as $item) {
-    //         $lineItems[] = [
-    //             'price_data' => [
-    //                 'currency' => 'usd',
-    //                 'product_data' => [
-    //                     'name' => $item->product->title,
-    //                    //'images' => [$product->image]
-    //                 ],
-    //                 'unit_amount' => $item->unit_price * 100,
-    //             ],
-    //             'quantity' => $item->quantity,
-    //         ];
-    //     }
+        $lineItems = [];
 
-    //     $session = \Stripe\Checkout\Session::create([
-    //         'line_items' => $lineItems,
-    //         'mode' => 'payment',
-    //         'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
-    //         'cancel_url' => route('checkout.failure', [], true),
-    //     ]);
+        foreach ($order->items as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $item->product->title,
+                       //'images' => [$product->image]
+                    ],
+                    'unit_amount' => $item->unit_price * 100,
+                ],
+                'quantity' => $item->quantity,
+            ];
+        }
 
-    //     $order->payment->session_id = $session->id;
-    //     $order->payment->save();
+        $session = \Stripe\Checkout\Session::create([
+            'line_items'        => $lineItems,
+            'mode'              => 'payment',
+            'customer_creation' => 'always',
+            'success_url'       => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'        => route('checkout.failure', [], true),
+        ]);
+
+        $order->payment->session_id = $session->id;
+        $order->payment->save();
 
 
-    //     return redirect($session->url);
-    // }
+        return redirect($session->url);
+    }
 
-    // public function webhook()
-    // {
-    //     \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
+    public function webhook()
+    {
+        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
 
-    //     $endpoint_secret = env('WEBHOOK_SECRET_KEY');
+        $endpoint_secret = env('WEBHOOK_SECRET_KEY');
 
-    //     $payload = @file_get_contents('php://input');
-    //     $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-    //     $event = null;
+        $payload    = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $event      = null;
 
-    //     try {
-    //         $event = \Stripe\Webhook::constructEvent(
-    //             $payload, $sig_header, $endpoint_secret
-    //         );
-    //     } catch (\UnexpectedValueException $e) {
-    //         // Invalid payload
-    //         return response('', 401);
-    //     } catch (\Stripe\Exception\SignatureVerificationException $e) {
-    //         // Invalid signature
-    //         return response('', 402);
-    //     }
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch (\UnexpectedValueException $e) {
+            // Invalid payload
+            return response('', 401);
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            return response('', 402);
+        }
 
-    //     // Handle the event
-    //     switch ($event->type) {
-    //         case 'checkout.session.completed':
-    //             $paymentIntent = $event->data->object;
-    //             $sessionId = $paymentIntent['id'];
+        // Handle the event
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $paymentIntent = $event->data->object;
+                $sessionId     = $paymentIntent['id'];
 
-    //             $payment = Payment::query()
-    //                 ->where(['session_id' => $sessionId, 'status' => PaymentStatus::Pending])
-    //                 ->first();
-    //             if ($payment) {
-    //                 $this->updateOrderAndSession($payment);
-    //             }
-    //         // ... handle other event types
-    //         default:
-    //             echo 'Received unknown event type ' . $event->type;
-    //     }
+                $payment = Payment::query()
+                    ->where(['session_id' => $sessionId, 'status' => Constants::PAYMENT_PENDING_STATUS])
+                    ->first();
+                if ($payment) {
+                    $this->updateOrderAndSession($payment);
+                }
+            // ... handle other event types
+            default:
+                echo 'Received unknown event type ' . $event->type;
+        }
 
-    //     return response('', 200);
-    // }
+        return response('', 200);
+    }
 
     private function updateOrderAndSession(Payment $payment)
     {

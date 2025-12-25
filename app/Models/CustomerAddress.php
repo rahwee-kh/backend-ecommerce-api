@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CustomerAddress extends Model
@@ -24,5 +25,10 @@ class CustomerAddress extends Model
     public function customer(): HasOne
     {
         return $this->hasOne(Customer::class, 'user_id', 'customer_id');
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_code', 'code');
     }
 }

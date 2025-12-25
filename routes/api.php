@@ -4,6 +4,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 
 /*
@@ -27,6 +28,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::apiResource('products', ProductController::class);
+        Route::get('orders', [OrderController::class, 'index']);
+        Route::get('orders/statuses', [OrderController::class, 'getStatuses']);
+        Route::get('orders/{order}', [OrderController::class, 'show']);
     });
 
 });
