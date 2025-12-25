@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\SVOrder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseApi;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends BaseApi
 {
@@ -48,6 +49,20 @@ class OrderController extends BaseApi
             return $data;
         }catch(\Throwable $e)
         {
+            return $this->respondError($e);
+        }
+        
+    }
+
+    public function changeStatus(Order $order, $status)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $this->getService()->changeStatus($order, $status);
+            DB::commit();
+            return $this->respondSuccess($data);
+        } catch (\Exception $e) {
+            DB::rollBack();
             return $this->respondError($e);
         }
         
