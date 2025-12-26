@@ -63,10 +63,10 @@ class SVCustomer extends BaseService
      * @param \App\Models\Customer     $customer
      * @return \Illuminate\Http\Response
      */
-    public function update(CustomerRequest $request, Customer $customer)
+    public function update($params, Customer $customer)
     {
-        $customerData               = $request->validated();
-        $customerData['updated_by'] = $request->user()->id;
+        $customerData               = $params;
+        $customerData['updated_by'] = auth()->user()->id;
         $customerData['status']     = $customerData['status'] ? CustomerStatus::Active->value : CustomerStatus::Disabled->value;
         $shippingData               = $customerData['shippingAddress'];
         $billingData                = $customerData['billingAddress'];

@@ -45,6 +45,11 @@ class SvAuth extends BaseService
             );
         }
 
+        if (!$user->is_admin) {
+            Auth::logout();
+            throw new BaseException('You don\'t have permission to authenticate as admin', "WRONG_PASSWORD", [], 404);
+        }
+
         return array(
             'token' => $token,
             'user'  => new UserResource($user)

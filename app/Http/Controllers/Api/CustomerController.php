@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Country;
 use App\Models\Api\User;
 use App\Models\Customer;
 use App\Services\SVCustomer;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BaseApi;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CustomerRequest;
+use App\Http\Resources\CountryResource;
 
 class CustomerController extends BaseApi
 {
@@ -81,5 +83,10 @@ class CustomerController extends BaseApi
             DB::rollBack();
             return $this->respondError($e);
         }
+    }
+
+     public function countries()
+    {
+        return CountryResource::collection(Country::query()->orderBy('name', 'asc')->get());
     }
 }
