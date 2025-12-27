@@ -20,6 +20,7 @@ class ProductListResource extends JsonResource
             'title'       => $this->title,
             'image_url'       => $this->image,
             'price'       => $this->price,
+            'published'   => $this->published,
             'updated_at'  => ( new DateTime($this->created_at))->format('Y-m-d H:i:s')
         ];
     }

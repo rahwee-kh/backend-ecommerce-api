@@ -19,6 +19,7 @@ class Product extends Model
         'image',
         'description',
         'price',
+        'published',
         'created_by',
         'updated_by'
     ];
