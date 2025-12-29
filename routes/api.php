@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\DashboardController;
@@ -49,6 +50,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard/latest-customers', [DashboardController::class, 'latestCustomers']);
         Route::get('/dashboard/latest-orders', [DashboardController::class, 'latestOrders']);
         
+        // Report routes
+        Route::get('/report/orders', [ReportController::class, 'orders']);
+        Route::get('/report/customers', [ReportController::class, 'customers']);
     });
 
 });

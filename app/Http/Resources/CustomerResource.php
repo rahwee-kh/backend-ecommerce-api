@@ -25,7 +25,7 @@ class CustomerResource extends JsonResource
             'id'         => $this->user_id,
             'first_name' => $this->first_name,
             'last_name'  => $this->last_name,
-            'email'      => $this->user->email,
+            'email'      => $this->user->email?? '',
             'phone'      => $this->phone,
             'status'     => $this->status === CustomerStatus::Active->value,
             'created_at' => (new \DateTime($this->created_at))->format('Y-m-d H:i:s'),

@@ -79,8 +79,11 @@ class SVUser extends BaseService
      */
     public function destroy(User $user)
     {
-        $user->delete();
 
+        if(auth()->user()->id === $user->id){
+            throw new \Exception("You can't delete your own user account.");
+        }
+        $user->delete();
         return response()->noContent();
     }
 }

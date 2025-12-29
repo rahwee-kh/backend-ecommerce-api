@@ -48,4 +48,5 @@ class DashboardController extends BaseApi
     {
         return $this->getService()->latestOrders();
     }
+
 }

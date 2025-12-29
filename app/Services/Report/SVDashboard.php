@@ -44,16 +44,17 @@ class SVDashboard extends BaseService
     {
         $fromDate = $this->getFromDate();
         $query = Order::query()->where('status', OrderStatus::Paid->value);
-
         if ($fromDate) {
             $query->where('created_at', '>', $fromDate);
         }
+        
         return round($query->sum('total_price'));
     }
 
     public function ordersByCountry()
     {
         $fromDate = $this->getFromDate();
+        
         $query = Order::query()
             ->select(['c.name', DB::raw('count(orders.id) as count')])
             ->join('users', 'created_by', '=', 'users.id')
@@ -61,8 +62,7 @@ class SVDashboard extends BaseService
             ->join('countries AS c', 'a.country_code', '=', 'c.code')
             ->where('status', OrderStatus::Paid->value)
             ->where('a.type', AddressType::Billing->value)
-            ->groupBy('c.name')
-            ;
+            ->groupBy('c.name');
 
         if ($fromDate) {
             $query->where('orders.created_at', '>', $fromDate);
@@ -98,4 +98,6 @@ class SVDashboard extends BaseService
                 ->get()
         );
     }
+
+    
 }

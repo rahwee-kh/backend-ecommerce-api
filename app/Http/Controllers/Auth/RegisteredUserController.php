@@ -52,6 +52,7 @@ class RegisteredUserController extends Controller
         $customer->user_id = $user->id;
         $customer->first_name = $name[0];
         $customer->last_name  = $name[1] ?? '';
+        $customer->status     = 'active';
         $customer->save();
 
 
